@@ -1,0 +1,24 @@
+Method References:
+	This is another way of writting lambada expressions.
+	
+Adding method new method in interface:
+	This allows to add methods to existing interfaces with our breaking existing implementations as shown below.
+	Also can write static methods in interface
+	
+'default' method:
+	default method can be added to an interface withour breaking any existing implementations.
+	This is implemented in java 8 Iterable interface ( Iterable is an pre java 8 interface ).
+	They have added a default method called 'foreach'
+	
+	e.g. usage
+		public interface Iterable<T> {
+			default void forEach (Consumer<E> consumer) {
+				for (E e: this) {
+					consumer.accept(e);
+				}
+			}
+		}
+		
+
+Streams:
+	Map/Filter/Reduce

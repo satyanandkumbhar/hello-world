@@ -1,0 +1,14 @@
+
+Documenting Agile Architectures:
+
+	Description: 
+		It's important to record certain design decisions for the benefit of future team members as well as for external oversight. Lightweight ---- Architecture Decision Records ---- is a technique for capturing important architectural decisions along with their context and consequences.
+	
+	An Architecture Decision Record example template: 
+		Date
+		Decision makers [who was involved in the decision taken]
+		Category [which part of the architecture does this decision pertain to]
+		Contextual outline [Explain why this decision was made. Outline the key considerations and assumptions at play]
+		Impact consequences [What does this decision mean for the project? What should someone reading this be aware of in terms of future decisions?]
+		
+	

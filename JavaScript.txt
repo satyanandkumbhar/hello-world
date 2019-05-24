@@ -1,0 +1,51 @@
+
+How events are processed
+	Javascript has
+		1) Execution Stack: This contains the function call stack
+		2) Message Queue:  This contains the events from browser like click, scross etc. They will be executed once the execution stack is empty
+
+Function Declaration & Function Expression
+	Function Declaration:
+		function calculateAge(year) {
+			console.log(2018 - year);
+		}
+
+	Function Expression:
+		var retirement = function(year) {
+			console.log(65  - (2018 - year));
+		}
+
+Hoisting
+	When you call a global function before its declairtio it's call Hoisting.
+	Hositihng only works with Function Declaration, it will not work with Function expression
+
+	e.g
+		Below will work
+		
+			calculateAge(1985);     // calling a function before it's declaration
+			function calculateAge(year) {
+				console.log(2018 - year);
+			}
+			
+			retirement(1985);       // This will not work since this is function expression, it can work only if the call is placed after declaration
+			var retirement = function(year) {
+				console.log(65  - (2018 - year));
+			}
+			
+Selecting DOM elements
+	document.querySelector('#score-0')         ----- Where # is used to select element with id
+	document.querySelector('.dice')            ----- Where . is used to select element with class
+	
+
+Constructor function:
+	var Person = function(name, yearOfBirth, job) {
+		this.name = name;
+		this.yearOfBirth = yearOfBirth;
+		this.job = job;
+		this.calculateAge = function() {
+			console.log(2016 - this.yearOfBirth);
+		}
+	}
+	
+	var john = new Person ('John', 1990, 'teacher');
+	john.calculateAge();

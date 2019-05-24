@@ -1,0 +1,74 @@
+File Operations
+Open File
+	f = open("file.txt","r")
+	d = f.read()
+-----------------------------------------------------------------------
+split the string
+	array_data=d.split(",")
+-----------------------------------------------------------------------	
+Looping array
+	cities = ["Austin", "Dallas", "Houston"]
+		for city in cities:
+			print(city)
+-----------------------------------------------------------------------
+Array Slicing
+	final_data[0:5]
+		This will include 0th element but not 5th
+-----------------------------------------------------------------------
+f = open('crime_rates.csv', 'r')
+data = f.read()
+rows = data.split('\n')
+#print(rows[0:5])
+
+int_crime_rates=[]
+for currRow in rows:    
+    int_crime_rates.append(int(currRow.split(",")[1]))
+
+print(int_crime_rates)
+------------------------------------------------------------------------------
+
+----------------------------------	Boolean	------------------------------
+type()	-	Use this to print the type of a variable
+cat = True
+dog = False
+print(type(cat))
+---------------------------------- If ------------------------------------------
+Similar to for loops, we need to format if statements in the following way:
+
+End the conditional statement with a colon (:)
+Indent the code (that we want run when True) below the conditional statement
+
+Also similar to for loops, if statements can contain multiple lines in the body, as long as their indentation aligns.
+
+
+------------- Check if element is present in list --------------
+lst=["apple","grapes"]
+result="apple" in lst
+------------------------------------------------------------------------------------
+
+------------- Dictionaries ------	They are like map in Java		--------
+While we initiate a new list with square brackets ([), we create a new dictionary with curly braces ({). We can make an empty dictionary like this:
+	scores = {}
+
+	Finding element in dictionary
+		We can also use the in statement to check whether a key occurs in a dictionary:
+		e.g.
+			students = {
+				"Tom": 60,
+				"Jim": 70
+			}
+			"Tom" in students would return True, and "Sue" in students would return in False.
+			
+------------------------- Functions --------------------------------------------------------------
+Up until now, we used built-in functions: functions that Python has defined for us. However, our toolbox is not limited to this; we can write our own functions. The syntax for defining a function consists of 5 parts:
+
+def keyword - For Python to interpret the following code as a function
+Name - To refer to when we need to call the function later
+Arguments - Input value(s) that the function takes in
+Body - The code that the function executes
+Return value - The value that the function returns to the user when the function terminates
+Let us examine the syntax further, using an example function that returns the first element of a list:
+
+	def first_elt(input_lst):
+		first = input_lst[0]
+		return first

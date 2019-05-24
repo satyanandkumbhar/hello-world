@@ -1,0 +1,7 @@
+Kibana 
+	Find the data in range
+		@timestamp:[2018-05-12 TO 2018-05-15]
+			This will return all the data where field '@timestamp' is between 12-May-2018 TO 15-May-2018
+			
+	Combining fields for search
+		@timestamp:[2018-05-15 TO 2018-05-16] AND message:exception

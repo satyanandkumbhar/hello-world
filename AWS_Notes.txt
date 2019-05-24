@@ -1,0 +1,432 @@
+IAM : Identity Access Management    ( consists of users, groups, roles and policy documents )
+	AWS access types	
+		1) Programatic Access: enables access key id and secret access key for AWS API, CLI, SDK and other development
+		2) AWS management consile access: enables a password that accloes users to sign-in to the AWS management console
+		
+	Policies - Define permission, can be associated to a group of users
+	
+	Roles: IAM roles are a secure way to grant permissions to entities that you trust. Example of entities include 
+		1) IAM user in another account
+		2) Application code running on an EC2 instance that needs to perform actionss on AWS resource
+		3) An AWS service that needs to act on resources in your account to provide its features
+		4) Users from a corporate directory who use identity fedaration with SAML
+		
+		IAM roles issue keys that are valid for short durations, making them a more secure way to grant access.		
+		IAM is global, whatever you setup using IAM can be used form any region.
+		User have no permission when they are first created, they will be given access key id and secret access key 
+		Always setup MFA ( Multi factor authentication ) on your root account
+		You can create and customize your own password rotation policies
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+EC2: Elastic compute cloud	( Virtual Machines )
+	Is a web service that provide resizeable compute capacity in the cloud.
+
+	EC2 Options:
+		On Demand: 			allows your to pay a fixed rate by hour ( or by the second ) and no commitment
+		Reserved: 			provides you with a capacity reservation, and offer a significant discont on the hourly charge for and instance. 1 Year or 3 Year terms
+		Spot: 				Moves price all the time. enables you to bid whatever price you want for instance capacity, providing for even greater savings if your applicatgions have flexible start and end times.
+		Dedicated Hosts: 	Physical EC2 server dedicated for your use. Dedicated Hosts can help you reduce costs by allowing you to use your exsting server-bound software licenses.
+		
+	Exam Tips:
+		Roles allow you not use Access Key ID's and Secret Access Keys
+		Roles are preferred from a security perspective
+		Roles are controlled by policies
+		You can change policy on role and it will take immidiate effect
+		You can attache and detach roles to running EC2 instances without having to stop or terminate these instances
+
+EBS: Elastic block storage ( Virtual Disk - A disk in the cloud )
+	Amazon EBS allows you to create storage volumes ans attach them to Amazon EC2 instances.
+	
+	Volume Types:
+		SSD
+			1) General Purpose SSD (GP2)
+				General purpose, balances both price and performance
+				Ratio of 3IOPS per GB with up to 10,000 IOPS and the ability to burst up to 3000 IOPS for extended periods of time for volumes at 3334GB and above
+			2) Provisioned IOPS SSD ( IO1 )
+				Designed for IO intensive applications such as large relational or NoSQL databases
+				Use if you need more than 10,000 IOPS.
+				Can provision up to 20,000 IOPS
+		Magnetic: 
+			1) Throughput Optimized HDD (ST1)
+				Big dataData warehouses
+				Log prcessing
+				Cannot be boot volumes
+			2) Cold HDD
+				Lowest cost storage for infrequently accessed workloads
+				File ServerCanot be a boot volume.
+			3) Magnetic (Standard)
+				Lowest cost per GB of all EBS volume types that is bootable.
+				For infrequent data access and where lowest storage cost is important.
+			
+Elastic Load Balancers:
+	Three types of load balancers
+		1) Application Load Balancer 
+			are best suited for load balancing HTTP and HTTPS traffic. They operate at Layer 7 and are application aware. They are intelligent and you can create advance request routing, sending specified requests to specific web servers.
+		2) Network Load Balancer
+			Best suited for load balancing TCP traffic where extreme performance is required. capable of handling millions of requests per second.
+		3) Classic Load Balancer
+			are Legacy load balancers. You can load balance HTTP/HTTPS applications and use layer --specific features, such as X-forwarded and sticky sessions. You can also use strict Layer 4 load balancing for applications that rely purely on the TCP protocol.
+			
+		504 error means the gateway has times out. This means that the application not responding within the idle timeout period, throubleshoot the application is the web server or database server.
+		If you need the ipv4 address of your end user, look for X-Forwarded-For header.
+		
+Route 53:
+	Route53 is Amazon's DNS service
+	Allows you to map your domain names to
+		EC2 Instances
+		Load balancers
+		S3 Buckets
+
+		
+RDS: Relational database service
+		MS SQL server / Oracle / PostgreSQL / Aurora / MariaDB
+	
+	Non Relational Databases:
+			
+	OLTP vs OLAP ( Online transaction processing vs Online analytics processing )
+		OLTP : Frequent access to database, frequent transactions
+		OLAP : Pull in large number of records, more complex transactions which happen infrequently
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+S3: Simple storage service
+	
+	S3 basic commands:
+		cp: Copies a local file or S3 object to another location locally or in S3.
+		ls: List S3 objects and common prefixes under a prefix or all S3 buckets. Note that the --output and --no-paginate arguments are ignored for this command.
+		mb: Creates an S3 bucket.
+		mv: Moves a local file or S3 object to another location locally or in S3.
+		presign: Generate a pre-signed URL for an Amazon S3 object. This allows anyone who receives the pre-signed URL to retrieve the S3 object with an HTTP GET request. For sigv4 requests the region needs to be configured explicitly.
+		rb: Deletes an empty S3 bucket. A bucket must be completely empty of objects and versioned objects before it can be deleted. However, the --force parameter can be used to delete the non-versioned objects in the bucket before the bucket is deleted.
+		rm: Deletes an S3 object.
+		sync: Syncs directories and S3 prefixes. Recursively copies new and updated files from the source directory to the destination. Only creates folders in the destination if they contain one or more files.
+		website: Set the website configuration for a bucket.
+
+	S3 Security: 
+		By default all buckets are private, so only the owner can perform operations on objects.
+		You can setup access control to your bucket using:
+			1) Bucket Policies: Can not be applied to indivisual objects.Applied at bucket level
+			2) Access Control list: applied at an object level.
+			
+		Encryption:
+			1) In Transit: i.e using SSL ( Secured socket layer) /TSL ( Transport layer security )
+			2) At Rest: i.e server side encryption
+				a) S3 Managed Keys: SSE-S3, aws manages keys and rotates them.
+				b) SSE KMS: Again aws managed your keys, comes with additional benefits.
+					you get audit trail too. You get option to use your own key.
+				c) SSE-C : Server side encryption with customer provided keys.
+			3) Client Side encryption:
+				The files are encrypted at source
+				
+		If you want to enforce server side encryption, use an S3 bucket policy to deny all PUT requests that don't include the x-amz-server-side-encryption parameter in the request header.
+		
+	CORS: ( Cross origin resource sharing )
+		Allows access to resources in one bucket from another bucket.
+		
+	Cloud Front: Amazons content delivery network (CDN)
+		Transfer Acclaration vs Cloud Front 
+			CDN: focused on content delivery, allowing more efficient reads and downloads 
+			Transfer Acclaration: all about enabling faster uploads in to S3
+		
+		Edge Location:
+			Collection of servers geographically disbursed datacenters, used by cloud front to cache the contents.				
+		
+		Cloud front distribution types:
+			1) Web Distributions:
+				used for websites over HTTP/HTTPS
+			2) RTMP: Real time messaging protocol
+				for media files like audio, video
+				
+	S3 Performance Optimization:
+		1) Get Intensive workloads: Use cloud front
+		2) Mixed workloads: Avoid sequencial key names, add some random  in front of key names.
+				
+	Exam Tips:
+		1) Edge Location: this is the location where your content is going to be cased it seperate to an AWS region or AWS availability zone.
+		2) Origin: This is the origin of all the files that CDN will distribute. Origins can be an S3 bucket. EC2 instance, elastic load balancer or Route53
+		3) Distribution: This is the name given to CDN, which consists of collection of edge locations
+			Two types of distributions: 
+				a) Web Distribution: For web sites
+				b) RTMP: for real time messaging system ( flash / media streaming )
+		4) If you want to restrict the access to specific set of user then you can do that using Signed URL's or Signed Cookies.
+			Signed URL's are user specific and they can not share with other users.
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Serverless:
+	
+	
+	Step Functions:
+		step function so what are step functions that basically allow you to visualize and test your surplus applications and they provide a graphic console to a range and visualize the components of your applications 
+		as a series of steps. This makes it easy to build and run multistep applications so it functions automatically trigger and track each step and retries when your application executes in order and as expected 
+		step functions looks the state of each step. So when things do go wrong you can go in and diagnose and debug problems quickly. So there's various ways you can use it. You can have sequential steps. This might 
+		be where you upload your file and then the next step is to go through and delete that rule.
+		
+		1) Great way to visualise your serverless application.
+		2) Step functions automatically triggers and tracts each steps.
+		3) Step funcitons logs the state of each step so if somthing goes wrong you can track what went wrong and where.
+		
+		
+	X-Ray:
+		Collects data about your requests and allows to filter data for investigate.
+		AWS sdk provides you interceptors to investigate the requests.
+		
+		SDK Provides:
+			1) Interceptors to add to your code to trace incoming HTTP requests
+			2) Client handlers to instrument AWS SDK clients that your application uses to use ti cal other AWS services
+			3) An HTTP client to use to instrument calls to other internal and external HTTP web services
+		X-Ray integrates with following AWS services:
+			1) Elastic load balancing
+			2) AWS Lambda
+			3) Amazon API Gateway
+			4) Amazon Elastic compute cloud 
+			5) AWS Elastic Beanstalk
+		X-Ray integrates with following languages:
+			1) Java
+			2) Go
+			3) Node.js
+			4) Python
+			5) Ruby
+			6) .Net
+			
+		Advanced API gateway:
+			Import APIs:
+				supports Swagger v2.0 definition files to import APIs
+				you can create new api with POST request 
+				modify existing API using PUT request, you can merge or override existing API definition using mode parameter in request URL
+				
+			API Throttling:
+				By default the API gateway limits the 10000 requests per seconds
+				Maximum 5000 requests across all APIs within AWS account concurrently
+				If you go beyond 10000 or 5000 you will receive 429 ( too many requests ) error response.
+				
+			SOAP websaervices passthrough
+				You can configure API Gateway as a SOAP web services passthrough.
+			
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dynamo DB:
+	Fast and flexible NoSQL DB.		
+	Supports both document and key value data model.
+	
+	Scan Vs Query Exam Tips:
+		1) A query operation finds items in a table using only the Primary key attribute
+		2) You provide a primary key a distinct value to search for
+		3) A Scan operation examines every item in the table
+		4) By default returns all data attributes
+		5) Use the projection Expression parameter to refine the results
+		6) Query results are always sorted by sort key
+		7) Sorted in ascendng order
+		8) Set ScanIndexForward parameter to false to reverse the order-queries only
+		9) Query operation is generally more efficient than a Scan
+		10) Reduce the impact of a query or scan by setting a smaller page size which ises fewer read operations
+		11) Isolate scan operations to specific tables and segragate them from your mission-critical traffic.
+		12) Try parallel scans, rather than the default sequential scan.
+		13) Avoid using scan operations if you can: design tables in a way that you can use the Query, Get, or BatchGetItem APIs
+		
+	Dynamo DB provisioned Throughput
+		Is the mechanism to define the capacity and performance requirements in DynamoDB
+		
+		1) Dynamo DB provisioned Throughput is measured in Capacity Units.
+		2) When you create your tables, you specify your requirements in terms of Read Capacity and Write Capacity Units.
+		3) 1 x Write Capacity Unit = 1 x 1KB write per seconds
+			1 x Read Capacity Unit = 1 x Strongly Consistent Read of 4KB per second
+			OR
+			2 x Eventually Consistent Reads of 4KB per second ( Default )
+	
+	DynamoDB Accelarator (DAX)
+		DynamoDB Accelarator is a fully managed clustered in memory cache for dynamo db.
+		Ideal for read heavy and bursty workloads. Can give 10x performance
+		
+		Exam Tips:
+			DAX provides in-memory cacheing for your dynamodb tables
+			Improves response time for eventually read consistency reads only
+			You point your API calls to your DAX cluster insteed of your tables
+			If item you are reading is on the cache, DAX will return it; otherwise it will perform an Eventually consistent GetItem operation on your dynamoDB tables.
+			Not suitable for write intensive applications or the applications which need strongly consistent reads.
+	Elastic Cache:
+		Is in memory cacheing, whcih can sit in front of web sites or even in front of dynamoDB
+		2 Types
+			1) Memcached
+				Widely adopted memory object caching system
+				Multithreaded
+				No multi-AZ capability
+				If this service went down the data is lost
+			2) Redis
+				Open source in memory key value store
+				Supports more complex data structures: sorted sets and lists
+				Supports master/salave replication and multi-AZ for cross AZ redundancy
+				If it is important to not lose the data use Redis
+
+		Caching Strategies
+			1) Lazy Loading
+				Advatages:
+					a) Only requested data is cached, if data is not present in cache (cache miss) it will read from DB
+					b) Node failure are not fatal, a new node will just hav a lot of cache misses initially
+				Disadvantages:
+					a) Cache miss penalty: Initial request query to database and writes back to cache
+					b) Stale data - if data is only updated during cache miss, any updates to database change is not reflected
+				TTL ( Time to live ) : specifies the number of seconds until the key expires to avoid keping stale data in the cache
+			2) Write-Through - 
+				Adds or updates data to the cache whenever data is written to the database
+				Advantages:
+					a) Data is never stale
+					b) U
+					
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+				
+AWS KMS: 
+	KMS is managed service, that makes it easy for you to create key and encrypt your data. It is integrated with a bunch of services like EC2, RDS and others.
+	When we do this we create a custoer master key, customer master key has alias, creation date, description, key state ( enabled/disabled), key material ( either customer provided or KMS provided )
+	
+	Keys are regional specific i.e. if you create a key in US East-1 then you can not use that in London.
+	If data is encrypted in region one and then you can not decrypt in another region.
+	You can not export the KMS key, if you want to export then you need to use cloud HMS, 
+		KMS used multi tenented hardware where as cloud HMS is dedicated to you.
+	
+	KMS API calls:
+		1) aws kms encrypt
+			Will encrypt the input
+		2) aws kms decrypt
+			Will decrypt the input
+		3) aws kms re-encrypt
+			Will decrypt and re-encrypt the input
+		4) aws kms enable-key-rotation
+			Enable the key rotation, which will happen every year
+			
+	KMS Envelop encryption
+		A process of encryting your envelop key, envelop key is basically the key using which you un-encrypt your data.
+		AWS-KMS, does encrypt your envelop key.
+		Basically it is encryption of your key which is used to encrypt your data.
+		
+		1) Customer master key is used to decrypt the data key ( envelop key / key material ).
+		2) Envelope key is used to decrypt the data
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SQS: Simple queue service
+	SQS is PULL based system., distributed messageing system
+	Messages are 256KB is size
+	Messages can be kept in queue from 1 min to 14 days, default retension period is 4 days
+	Gurantees that your messages are processed at least once
+	Is a web service that gives you access to a message queue to store messages.
+	
+	SQS visibility timeout:
+		Once message is picked up by consumer the message is invisible if process finishes the processing then message is deleted else the message may re-appear in queue.
+		Default visible timeout is 30 seconds max is 12 hours
+		
+	SQS polling:
+		1) Short polling:
+			response is returned immidiately even if there are no messages
+		2) long polliing: 
+			Polls the queue periodically and waits until there are messages in the queue or time out occures.
+			Maximum lon poll timeout is 20 seconds
+			
+	Two types of queues:
+		1) Standard queue ( default )
+			Order of delicery can't be guranteed
+			Unlimited transaction per second
+		2) FIFO queue
+			Order is guranteed
+			Limited to 300 transactions per second
+			
+SNS: Simple notification service ( pub / sub service )
+	Web service to send messages from cloud.
+	Can send messages to android, apple, fire os and windows devices
+	Can deliver the message to SQS, send text message, email or http end point
+	Can also invoke Lambda function
+	Group the subscribers using topic, SNS will send message to each subscriber
+	
+SES: Simple email service
+	can send emails
+	can receive emails and invoke the Lambda functions
+	
+Elastic Beanstalk 101:
+	Is a service for deploying and scaling web applications.
+	You upload the code and elastic beanstalk will handle deployment, capacity provisioning, loca balancing, auto-scaling and application health
+	You retain full control of the underlying aws resources powering your application and you pay only for the aws resources required to store and run your application ( e.g. EC2 instances and S3 buckets )
+	
+	Updating Elastic Beanstalk
+		EBS deployment policies ( This is what how we update our code )
+			1) All at once
+				Deploy the new version to all instances simultaniously. You will see a downtime during deployment. If deployment fails you need to roll back by re-deploying original version
+				
+			2) Rolling
+				Deploys new version in batches
+				Each batch of service is taken out of service while the deployment takes place
+				Your environment capacity will be reduced by the number of instances in batch
+				No ideal for performance sensitive systems
+				
+			3) Rolling with additional batch policy
+				Launches an additional batch of instances
+				Deploys the new version in batches
+				Maintains full capacity during the deloyment process
+				If update fails, you need to perform and additional rolling update to roll back the changes
+				
+				If you don't need downtime + maintain full capacity
+				
+			4) Immutable Deployment Updates:
+				Deploys the new version to a fresh group of instances in their own new autoscaling group
+				When the new instances pass their health checks, they are moved to your existing auto scaling group; and finally the old instances are terminated
+				Maintains full capcity during the deployment process
+				The impact of a failed update is far less, and the rollback process requires only terminating the new auto scaling group
+				Preferred option for Mission Critical production systems
+				
+	Advanced Elastic Beanstalk
+		You can customize the elasticbeanstalk using configuartion files
+		The configuration files are added to root of your code zip, its extension will be '.config' and they will be places in folder called '.ebextensions' and the contents can be on JSON and YAML format.
+		
+	Elastic beanstalk with RDS:
+		Two options to launch the RDS instance:
+			1) Launch with Elastic Beanstalk
+				When you terminate your Elastic Beanstalk environment, the database will also be terinated
+				Quick and easy whay to add your database and get started
+				Suitable for Dev and Test environments only
+				
+			2) Launch outside of Elastic Beanstalk
+				Additional configuration steps required - Security group and connection information
+				Suitable for production environments, more flexibility
+				Allows connection for multiple environments, you can tear down the application stack without impacting the database
+				
+Kinesis:
+	Amazon Kinesis os a platform on AWS to send your streaming data too, makes it easy to stream and analyze your data.
+	
+	Three core Kenesis services:
+		1) Kinesis Streams
+			Stores data by default for 24 hours, can be changed for 7 days.
+			They are stored in shards: Gives 
+		2) Kinesis Firehos
+			Automated and no need to worry about shards ( does't have shards ) and manually assigning the shards
+			Do not retain the data, as soon data comes in it will be either analysed by Labda or will be send to S3 ( can send to redshift, can send to Elastic search directly )
+		3) Kinesis Analytics
+			Used to run sql queries on Kinesis stream or Firehose.
+			You can send the transformed/queried data to elastic search etc.
+
+
+			
+Dev Theory:
+	CI/CD
+		AWS CodeCommit    - git as service
+			Based on git
+			centralised code repo
+			tracks and manages code changes
+			maintains version history
+			manages updates from multiple sources and enables cllaboration
+		AWS CodeBuild     - compile source code, run tests and package code
+			
+		AWS CodeDeploy    - Automated Deployment to EC2, on premises systems and Lambda
+			Fully managed automated deployment service and can used for continous delivery and deployment
+			1) In Place deployment ( also known as rolling updates )
+				the application is stopped on each instance and the latest revision installed.
+				the instance is out of service during this time and your capacity will be reduced
+			2) Blue/Green Deployment: ( Blue is active deployment and green is the new release )
+				new instance are provisioned and the latest revision is installed on the new instances. 
+				The new instances are registered with an Elastic Load Balancer, traffic is then routed to the new instance and the original instances are eventually terminated.
+				
+			AWS code deply terminology:
+				1) Deployment Group - A set of EC2 instances or lambda functions to which a new revision of the software is to be deployed
+				2) Deployment - The process and components used to apply a new revision
+				3) Deployment Configuration - A set of deployment rules as well as success/failure conditions used during a deployment
+				4) AppSpec File - Defines the deployment actions you want AWS CodeDeploy to executes
+				5) Revision - Everything needed to deploy the new version: AppSpec file, application files, executables, config files
+				6) Application - Unique identifier for the application you want to deploy. To ensure the correct combination of revision, deployment configuration and deployment group are referenced during a deployment
+		AWS CodePipeline  - CI/CD workflow tool, fully automates the entire release process ( build,test,deployment)
+		
+		

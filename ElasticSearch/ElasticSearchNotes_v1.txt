@@ -1,0 +1,158 @@
+
+Port
+	Elasticsearch uses port 9200
+
+Index
+	An index is a collection of documents that have somewhat similar characteristics. For example, you can have an index for customer data, another index for a product catalog, and yet another index for order data. An index is identified by a name (that must be all lowercase) and this name is used to refer to the index when performing indexing, search, update, and delete operations against the documents in it.
+
+Document
+	A document is a basic unit of information that can be indexed. For example, you can have a document for a single customer, another document for a single product, and yet another for a single order. This document is expressed in JSON (JavaScript Object Notation) which is a ubiquitous internet data interchange format.
+	Within an index/type, you can store as many documents as you want. Note that although a document physically resides in an index, a document actually must be indexed/assigned to a type inside an index.
+	
+Starting elasticsearch
+	./elasticsearch -Ecluster.name=my_cluster_name -Enode.name=my_node_name
+
+Cluster Health
+	GET /_cat/health?v
+	
+List of nodes in our cluster
+	GET /_cat/nodes?v
+
+Operations on Index
+	List All Indices
+		GET /_cat/indices?v
+	
+	Create an Index
+		PUT /customer?pretty
+		GET /_cat/indices?v
+	
+	Delete an Index
+		DELETE /customer?pretty
+		GET /_cat/indices?v
+	
+Operations on documents
+	Index and Query a Documentedit [ Create a document in an index ]
+		PUT /customer/_doc/1?pretty
+		{
+		  "name": "John Doe"
+		}
+			
+		When indexing, the ID part is optional. If not specified, Elasticsearch will generate a random ID and then use it to index the document.
+		PUT /customer/_doc?pretty
+		{
+		  "name": "John Doe"
+		}	
+
+	Retrieve that document that we just indexed [ Get the document ]
+		GET /customer/_doc/1?pretty
+		
+	Updating Documents
+		POST /customer/_doc/1/_update?pretty
+		{
+		  "doc": { "name": "Jane Doe" }
+		}
+		
+		POST /customer/_doc/1/_update?pretty
+		{
+		  "doc": { "name": "Jane Doe", "age": 20 }
+		}
+		
+	Deleting Documents
+		DELETE /customer/_doc/2?pretty
+		
+	Batch Processing
+		POST /customer/_doc/_bulk?pretty
+		{"index":{"_id":"1"}}
+		{"name": "John Doe" }
+		{"index":{"_id":"2"}}
+		{"name": "Jane Doe" }		
+		
+		POST /customer/_doc/_bulk?pretty
+		{"update":{"_id":"1"}}
+		{"doc": { "name": "John Doe becomes Jane Doe" } }
+		{"delete":{"_id":"2"}}
+		
+Loading the Sample Dataset
+	You can download the sample dataset (accounts.json) from here. Extract it to our current directory and let’s load it into our cluster as follows:
+		curl -H "Content-Type: application/json" -XPOST "localhost:9200/bank/_doc/_bulk?pretty&refresh" --data-binary "@accounts.json"
+		curl "localhost:9200/_cat/indices?v"
+		
+The Search API
+	There are two basic ways to run searches: one is by sending search parameters through the REST request URI and the other by sending them through the REST request body. The request body method allows you to be more expressive and also to define your searches in a more readable JSON format.
+		GET /bank/_search?q=*&sort=account_number:asc&pretty	
+	Here is the same exact search above using the alternative request body method:
+		GET /bank/_search
+		{
+		  "query": { "match_all": {} },
+		  "sort": [
+			{ "account_number": "asc" }
+		  ]
+		}
+
+Introducing the Query Language
+	Elasticsearch provides a JSON-style domain-specific language that you can use to execute queries. This is referred to as the Query DSL.
+	e.g.
+		Note that if size is not specified, it defaults to 10. [ The below will return 1 single result ]
+			GET /bank/_search
+			{
+			  "query": { "match_all": {} },
+			  "size": 1
+			}
+			
+		The below does a match_all and returns documents 10 through 19.
+		The from parameter (0-based) specifies which document index to start from and the size parameter specifies how many documents to return starting at the from parameter. This feature is useful when implementing paging of search results. Note that if from is not specified, it defaults to 0.
+			GET /bank/_search
+			{
+			  "query": { "match_all": {} },
+			  "from": 10,
+			  "size": 10
+			}
+			
+		Below example does a match_all and sorts the results by account balance in descending order and returns the top 10 (default size) documents.
+			GET /bank/_search
+			{
+			  "query": { "match_all": {} },
+			  "sort": { "balance": { "order": "desc" } }
+			}
+			
+Executing Searches
+	Now that we have seen a few of the basic search parameters, let’s dig in some more into the Query DSL.
+	e.g.
+		This example shows how to return two fields, account_number and balance (inside of _source), from the search:
+			GET /bank/_search
+			{
+			  "query": { "match_all": {} },
+			  "_source": ["account_number", "balance"]
+			}
+			
+		This example returns the account numbered 20:
+			GET /bank/_search
+			{
+			  "query": { "match": { "account_number": 20 } }
+			}	
+
+		This example returns all accounts containing the term "mill" in the address:
+			GET /bank/_search
+			{
+			  "query": { "match": { "address": "mill" } }
+			}
+			
+		This example returns all accounts containing the term "mill" or "lane" in the address:
+			GET /bank/_search
+			{
+			  "query": { "match": { "address": "mill lane" } }
+			}
+			
+		This example is a variant of match (match_phrase) that returns all accounts containing the phrase "mill lane" in the address:
+			GET /bank/_search
+			{
+			  "query": { "match_phrase": { "address": "mill lane" } }
+			}
+			
+		Count the number of documents in an index
+			GET /bank/_doc/_count
+		
+NOTE:
+	If we study the above commands carefully, we can actually see a pattern of how we access data in Elasticsearch. That pattern can be summarized as follows:
+		<REST Verb> /<Index>/<Type>/<ID>
+		

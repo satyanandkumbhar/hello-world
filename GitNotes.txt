@@ -1,0 +1,65 @@
+
+===============	Resolving Conflicts ===================================================================
+
+Best is to stash your changes and before you pull from branch
+But when you apply the stash you may land into conflict and you can use following steps to resplve the conflicts
+
+Manage Conflicts with Merge Tool (Team->Merge Tool) and Save
+Add each file to stage (Team -> Add to index)
+======================================================================================================
+
+Git merge commands:
+	to keep the remote file, and:
+		git checkout --theirs /path/to/file
+	to keep the local file, and:
+		git checkout --ours /path/to/file
+		
+Good quote I've seen one day on the web: every time a mock returns a mock a fairy dies.
+
+======================================================================================================
+			Configuring SSH keys
+1) Look at the option on generating the SSH keys at following URL:
+	http://guides.beanstalkapp.com/version-control/git-on-windows.html#installing-ssh-keys
+	
+2) The keys are generated with name id_rsa [ private key ], id_rsa.pub [ public key ]
+	These are the keys read by Git Bash
+	
+3) You can open the git bash and test your connect with, this will ask you for passphrase which you have setup during the key generation
+	ssh git@gitlab.slc.co.uk
+	
+
+	
+======================================================================================================
+				Adding new project to GIT
+Command line instructions
+
+
+Git global setup
+
+git config --global user.name "Satyanand Kumbhar"
+git config --global user.email "satyanand_kumbhar@slc.co.uk"
+
+Create a new repository
+
+git clone git@gitlab.slc.co.uk:sis/testautomation/sanity-test-sisprocess.git
+cd sanity-test-sisprocess
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+
+Existing folder
+
+cd existing_folder
+git init
+git remote add origin git@gitlab.slc.co.uk:sis/testautomation/sanity-test-sisprocess.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+
+Existing Git repository
+
+cd existing_repo
+git remote add origin git@gitlab.slc.co.uk:sis/testautomation/sanity-test-sisprocess.git
+git push -u origin --all
+git push -u origin --tags	

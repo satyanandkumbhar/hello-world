@@ -1,0 +1,337 @@
+
+	Intro:
+		Elasticsearch provides data manipulation and search capabilities in near real time. By default, you can expect a one second delay (refresh interval) from the time you index/update/delete your data until the time that it appears in your search results. This is an important distinction from other platforms like SQL wherein data is immediately available after a transaction is completed.
+
+
+	List all the indexes:
+		curl http://localhost:9200/_aliases?pretty=1
+	
+	Count the number of documents against an Index
+		curl http://localhost:9200/shakespeare/_count
+		
+	Describe an Index
+		curl http://localhost:9200/filebeat-2017.07.06/_mapping?pretty=1
+	Describe all indexes
+		curl http://localhost:9200/_mapping?pretty=1
+
+				
+		
+		
+	/******* Monitoring *********/
+	1) Monitoring your shards
+		curl http://localhost:9200/_cat/shards
+	2) curl http://localhost:9200/_cat/health/?v
+		Health of your cluster
+	3) List all indices
+		curl http://localhost:9200/_cat/indices?v
+		
+		
+	/*********		Operations on your indices	*****************/
+	1) Create an Index
+		Now let’s create an index named "customer" and then list all the indexes again:
+			curl -XPUT 'localhost:9200/customer?pretty'
+			curl 'localhost:9200/_cat/indices?v'
+		The first command creates the index named "customer" using the PUT verb. We simply append pretty to the end of the call to tell it to pretty-print the JSON response (if any).	
+	2) Index and Query a Document: 
+			Let’s now put something into our customer index. Remember previously that in order to index a document, we must tell Elasticsearch which type in the index it should go to.
+			Let’s index a simple customer document into the customer index, "external" type, with an ID of 1 as follows:
+			Our JSON document: { "name": "John Doe" }
+				curl -XPUT 'localhost:9200/customer/external/1?pretty' -d '
+				{
+				  "name": "John Doe"
+				}'
+			
+			Let’s now retrieve that document that we just indexed:
+				curl -XGET 'localhost:9200/customer/external/1?pretty'
+			And the response:
+				curl -XGET 'localhost:9200/customer/external/1?pretty'
+				{
+				  "_index" : "customer",
+				  "_type" : "external",
+				  "_id" : "1",
+				  "_version" : 1,
+				  "found" : true,
+				  "_source" : { "name": "John Doe" }
+				}
+			Nothing out of the ordinary here other than a field, found, stating that we found a document with the requested ID 1 and another field, _source, which returns the full JSON document that we indexed from the previous step.	
+	3) Delete an Index: 
+			Now let’s delete the index that we just created and then list all the indexes again:
+				curl -XDELETE 'localhost:9200/customer?pretty'
+				curl 'localhost:9200/_cat/indices?v'
+	
+		Before we move on, let’s take a closer look again at some of the API commands that we have learned so far:
+			curl -XPUT 'localhost:9200/customer'
+			curl -XPUT 'localhost:9200/customer/external/1' -d '
+			{
+			  "name": "John Doe"
+			}'
+			curl 'localhost:9200/customer/external/1'
+			curl -XDELETE 'localhost:9200/customer'
+		If we study the above commands carefully, we can actually see a pattern of how we access data in Elasticsearch. That pattern can be summarized as follows:
+		curl -X<REST Verb> <Node>:<Port>/<Index>/<Type>/<ID>
+		This REST access pattern is pervasive throughout all the API commands that if you can simply remember it, you will have a good head start at mastering Elasticsearch.
+	4) Indexing/Replacing Documents
+		We’ve previously seen how we can index a single document. Let’s recall that command again:
+			curl -XPUT 'localhost:9200/customer/external/1?pretty' -d '
+			{
+			  "name": "John Doe"
+			}'
+		Again, the above will index the specified document into the customer index, external type, with the ID of 1. If we then executed the above command again with a different (or same) document, Elasticsearch will replace (i.e. reindex) a new document on top of the existing one with the ID of 1:
+			curl -XPUT 'localhost:9200/customer/external/1?pretty' -d '
+			{
+			  "name": "Jane Doe"
+			}'
+		The above changes the name of the document with the ID of 1 from "John Doe" to "Jane Doe". If, on the other hand, we use a different ID, a new document will be indexed and the existing document(s) already in the index remains untouched.
+
+			curl -XPUT 'localhost:9200/customer/external/2?pretty' -d '
+			{
+			  "name": "Jane Doe"
+			}'
+		The above indexes a new document with an ID of 2.
+		When indexing, the ID part is optional. If not specified, Elasticsearch will generate a random ID and then use it to index the document. The actual ID Elasticsearch generates (or whatever we specified explicitly in the previous examples) is returned as part of the index API call.
+		
+		This example shows how to index a document without an explicit ID:
+			curl -XPOST 'localhost:9200/customer/external?pretty' -d '
+			{
+			  "name": "Jane Doe"
+			}'
+	Note that in the above case, we are using the POST verb instead of PUT since we didn’t specify an ID.
+	5) Updating Documents
+		In addition to being able to index and replace documents, we can also update documents. Note though that Elasticsearch does not actually do in-place updates under the hood. Whenever we do an update, Elasticsearch deletes the old document and then indexes a new document with the update applied to it in one shot.
+		This example shows how to update our previous document (ID of 1) by changing the name field to "Jane Doe":
+			curl -XPOST 'localhost:9200/customer/external/1/_update?pretty' -d '
+			{
+			  "doc": { "name": "Jane Doe" }
+			}'
+		This example shows how to update our previous document (ID of 1) by changing the name field to "Jane Doe" and at the same time add an age field to it:	
+			curl -XPOST 'localhost:9200/customer/external/1/_update?pretty' -d '
+			{
+			  "doc": { "name": "Jane Doe", "age": 20 }
+			}'
+	6) Deleting Documents: 
+		Deleting a document is fairly straightforward. This example shows how to delete our previous customer with the ID of 2:
+		curl -XDELETE 'localhost:9200/customer/external/2?pretty'
+		The delete-by-query plugin can delete all documents matching 
+	7) Batch Processing:
+		In addition to being able to index, update, and delete individual documents, Elasticsearch also provides the ability to perform any of the above operations in batches using the _bulk API. This functionality is important in that it provides a very efficient mechanism to do multiple operations as fast as possible with as little network roundtrips as possible.
+		As a quick example, the following call indexes two documents (ID 1 - John Doe and ID 2 - Jane Doe) in one bulk operation:
+	
+			curl -XPOST 'localhost:9200/customer/external/_bulk?pretty' -d '
+			{"index":{"_id":"1"}}
+			{"name": "John Doe" }
+			{"index":{"_id":"2"}}
+			{"name": "Jane Doe" }
+			'
+		This example updates the first document (ID of 1) and then deletes the second document (ID of 2) in one bulk operation:
+			curl -XPOST 'localhost:9200/customer/external/_bulk?pretty' -d '
+			{"update":{"_id":"1"}}
+			{"doc": { "name": "John Doe becomes Jane Doe" } }
+			{"delete":{"_id":"2"}}
+			'
+		Note above that for the delete action, there is no corresponding source document after it since deletes only require the ID of the document to be deleted.
+
+		The bulk API executes all the actions sequentially and in order. If a single action fails for whatever reason, it will continue to process the remainder of the actions after it. When the bulk API returns, it will provide a status for each action (in the same order it was sent in) so that you can check if a specific action failed or not.
+	
+
+
+		/*********************************************** The Search API ****************************************************************/
+		 There are two basic ways to run searches: one is by sending search parameters through the REST request URI and the other by sending them through the REST request body. 
+		 1) The REST API for search is accessible from the _search endpoint. This example returns all documents in the bank index:
+			curl 'localhost:9200/bank/_search?q=*&pretty'
+		 2) alternative request body method:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match_all": {} }
+			}'
+			
+			The difference here is that instead of passing q=* in the URI, we POST a JSON-style query request body to the _search API. 
+			
+
+		/************************************************* Introducing the Query Language ************************************************/
+			Elasticsearch provides a JSON-style domain-specific language that you can use to execute queries. 
+			
+		Going back to our last example, we executed this query:
+			{
+			  "query": { "match_all": {} }
+			}
+		Dissecting the above, the query part tells us what our query definition is and the match_all part is simply the type of query that we want to run. The match_all query is simply a search for all documents in the specified index.
+		
+		In addition to the query parameter, we also can pass other parameters to influence the search results. For example, the following does a match_all and returns only the first document:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match_all": {} },
+			  "size": 1
+			}'
+		Note that if size is not specified, it defaults to 10.
+		
+		This example does a match_all and returns documents 11 through 20:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match_all": {} },
+			  "from": 10,
+			  "size": 10
+			}'
+		The from parameter (0-based) specifies which document index to start from and the size parameter specifies how many documents to return starting at the from parameter. This feature is useful when implementing paging of search results. Note that if from is not specified, it defaults to 0.
+
+		This example does a match_all and sorts the results by account balance in descending order and returns the top 10 (default size) documents.
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match_all": {} },
+			  "sort": { "balance": { "order": "desc" } }
+			}'
+			
+		/************** Executing searches ****************/
+			Get specific fields from the results:
+			This example shows how to return two fields, account_number and balance (inside of _source), from the search:
+				curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+				{
+				  "query": { "match_all": {} },
+				  "_source": ["account_number", "balance"]
+				}'
+				
+		match query, which can be thought of as a basic fielded search query (i.e. a search done against a specific field or set of fields).
+		------------------------------------------------------------------------------------------------------------------------------------
+		This example returns the account numbered 20:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match": { "account_number": 20 } }
+			}'
+
+		This example returns all accounts containing the term "mill" in the address:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match": { "address": "mill" } }
+			}'
+
+		This example returns all accounts containing the term "mill" or "lane" in the address:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match": { "address": "mill lane" } }
+			}'
+
+		This example is a variant of match (match_phrase) that returns all accounts containing the phrase "mill lane" in the address:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": { "match_phrase": { "address": "mill lane" } }
+			}'
+			
+		match query, must, should, and must_not clauses.
+		------------------------------------------------------------------------------------------------------------------------------------	
+		Let’s now introduce the bool(ean) query. The bool query allows us to compose smaller queries into bigger queries using boolean logic.
+
+		This example composes two match queries and returns all accounts containing "mill" and "lane" in the address:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": {
+				"bool": {
+				  "must": [
+					{ "match": { "address": "mill" } },
+					{ "match": { "address": "lane" } }
+				  ]
+				}
+			  }
+			}'
+		In the above example, the bool must clause specifies all the queries that must be true for a document to be considered a match.
+
+		In contrast, this example composes two match queries and returns all accounts containing "mill" or "lane" in the address:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": {
+				"bool": {
+				  "should": [
+					{ "match": { "address": "mill" } },
+					{ "match": { "address": "lane" } }
+				  ]
+				}
+			  }
+			}'
+		In the above example, the bool should clause specifies a list of queries either of which must be true for a document to be considered a match.
+
+		This example composes two match queries and returns all accounts that contain neither "mill" nor "lane" in the address:
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": {
+				"bool": {
+				  "must_not": [
+					{ "match": { "address": "mill" } },
+					{ "match": { "address": "lane" } }
+				  ]
+				}
+			  }
+			}'
+		In the above example, the bool must_not clause specifies a list of queries none of which must be true for a document to be considered a match.
+
+		We can combine must, should, and must_not clauses simultaneously inside a bool query. Furthermore, we can compose bool queries inside any of these bool clauses to mimic any complex multi-level boolean logic.
+		This example returns all accounts of anybody who is 40 years old but don’t live in ID(aho):
+			curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+			{
+			  "query": {
+				"bool": {
+				  "must": [
+					{ "match": { "age": "40" } }
+				  ],
+				  "must_not": [
+					{ "match": { "state": "ID" } }
+				  ]
+				}
+			  }
+			}'		
+			
+	----------------------------------------------------- Executing Filters -------------------------------------------------------------------------------
+	In the previous section, we skipped over a little detail called the document score (_score field in the search results). The score is a numeric value that is a relative measure of how well the document matches the search query that we specified. The higher the score, the more relevant the document is, the lower the score, the less relevant the document is.
+	
+	But queries do not always need to produce scores, in particular when they are only used for "filtering" the document set. Elasticsearch detects these situations and automatically optimizes query execution in order not to compute useless scores.
+	
+	The bool query that we introduced in the previous section also supports filter clauses which allow to use a query to restrict the documents that will be matched by other clauses, without changing how scores are computed. As an example, let’s introduce the range query, which allows us to filter documents by a range of values. This is generally used for numeric or date filtering.
+	
+	This example uses a bool query to return all accounts with balances between 20000 and 30000, inclusive. In other words, we want to find accounts with a balance that is greater than or equal to 20000 and less than or equal to 30000.
+
+		curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+		{
+		  "query": {
+			"bool": {
+			  "must": { "match_all": {} },
+			  "filter": {
+				"range": {
+				  "balance": {
+					"gte": 20000,
+					"lte": 30000
+				  }
+				}
+			  }
+			}
+		  }
+		}'
+		
+	----------------------------------------------------- Executing Aggregations -------------------------------------------------------------------------------
+	Aggregations provide the ability to group and extract statistics from your data.
+	
+	To start with, this example groups all the accounts by state, and then returns the top 10 (default) states sorted by count descending (also default):
+		curl -XPOST 'localhost:9200/bank/_search?pretty' -d '
+		{
+		  "size": 0,
+		  "aggs": {
+			"group_by_state": {
+			  "terms": {
+				"field": "state"
+			  }
+			}
+		  }
+		}'
+	
+	In SQL, the above aggregation is similar in concept to:
+		SELECT state, COUNT(*) FROM bank GROUP BY state ORDER BY COUNT(*) DESC
+		
+	
+	Avg Aggregation
+	-----------------
+	A single-value metrics aggregation that computes the average of numeric values that are extracted from the aggregated documents. These values can be extracted either from specific numeric fields in the documents, or be generated by a provided script.
+	Assuming the data consists of documents representing exams grades (between 0 and 100) of students
+		{
+			"aggs" : {
+				"avg_grade" : { "avg" : { "field" : "grade" } }
+			}
+		}
+	The above aggregation computes the average grade over all documents. The aggregation type is avg and the field setting defines the numeric field of the documents the average will be computed on. 
+	
+	

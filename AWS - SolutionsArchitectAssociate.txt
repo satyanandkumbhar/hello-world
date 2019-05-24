@@ -1,0 +1,94 @@
+VPC - 
+	A VPC spans all the Availability Zones in the region.
+	
+Subnet - 
+	After creating a VPC, you can add one or more subnets in each Availability Zone. 
+	When you create a subnet, you specify the CIDR block for the subnet, which is a subset of the VPC CIDR block. 
+	Each subnet must reside entirely within one Availability Zone and cannot span zones.
+	Types Of Subnet -
+		Public Subnet : 
+			If a subnet's traffic is routed to an internet gateway, the subnet is known as a public subnet.
+		Private Subnet : 
+			If a subnet doesn't have a route to the internet gateway, the subnet is known as a private subnet.
+		VPN-only subnet : 
+			If a subnet doesn't have a route to the internet gateway, but has its traffic routed to a virtual private gateway for a Site-to-Site VPN connection, the subnet is known as a VPN-only subnet.
+	Subnet Security -
+		Security groups : 
+			Security groups control inbound and outbound traffic for your instances
+		Network ACLs : 
+			Network ACLs control inbound and outbound traffic for your subnets.
+		
+Route Tables -
+	A route table contains a set of rules, called routes, that are used to determine where network traffic is directed.
+	Each subnet in your VPC must be associated with a route table; the table controls the routing for the subnet. 
+	A subnet can only be associated with one route table at a time, but you can associate multiple subnets with the same route table.
+	Every route table contains a local route for communication within the VPC over IPv4. If your VPC has more than one IPv4 CIDR block, your route tables contain a local route for each IPv4 CIDR block.
+	Route Table Basics -
+		When you add an Internet gateway, an egress-only Internet gateway, a virtual private gateway, a NAT device, a peering connection, or a VPC endpoint in your VPC, you must update the route table for any subnet that uses these gateways or connections.
+	Main Route Tables -
+		When you create a VPC, it automatically has a main route table.
+		On the Route Tables page in the Amazon VPC console, you can view the main route table for a VPC by looking for Yes in the Main column.
+		The main route table controls the routing for all subnets that are not explicitly associated with any other route table.
+		You can add, remove, and modify routes in the main route table.
+	Custom Route Tables -
+		Your VPC can have route tables other than the default table. 
+		One way to protect your VPC is to leave the main route table in its original default state (with only the local route), and explicitly associate each new subnet you create with one of the custom route tables you've created. This ensures that you explicitly control how each subnet routes outbound traffic.
+	
+Availability Zones - 
+	Availability Zones are distinct locations that are engineered to be isolated from failures in other Availability Zones.
+
+NAT -
+	You can use a NAT device to enable instances in a private subnet to connect to the internet (for example, for software updates) or other AWS services, but prevent the internet from initiating connections with the instances. 
+	A NAT device forwards traffic from the instances in the private subnet to the internet or other AWS services, and then sends the response back to the instances. 
+	When traffic goes to the internet, the source IPv4 address is replaced with the NAT device’s address and similarly, when the response traffic goes to those instances, the NAT device translates the address back to those instances’ private IPv4 addresses.
+	NAT devices are not supported for IPv6 traffic—use an egress-only Internet gateway instead. For more information, see Egress-Only Internet Gateways.
+
+Egress-Only Internet Gateways - 
+	An egress-only Internet gateway is a horizontally scaled, redundant, and highly available VPC component that allows outbound communication over IPv6 from instances in your VPC to the Internet, and prevents the Internet from initiating an IPv6 connection with your instances.
+	Note - An egress-only Internet gateway is for use with IPv6 traffic only. To enable outbound-only Internet communication over IPv4, use a NAT gateway instead. For more information, see NAT Gateways
+	An egress-only Internet gateway is stateful: it forwards traffic from the instances in the subnet to the Internet or other AWS services, and then sends the response back to the instances.
+	An egress-only Internet gateway has the following characteristics:
+		You cannot associate a security group with an egress-only Internet gateway. You can use security groups for your instances in the private subnet to control the traffic to and from those instances.
+		You can use a network ACL to control the traffic to and from the subnet for which the egress-only Internet gateway routes traffic.
+		An egress-only Internet gateway is stateful: it forwards traffic from the instances in the subnet to the Internet or other AWS services, and then sends the response back to the instances.		
+
+NAT gateway - 
+	You can use a network address translation (NAT) gateway to enable instances in a private subnet to connect to the internet or other AWS services, but prevent the internet from initiating a connection with those instances.
+	NAT Gateway Basics:
+		To create a NAT gateway, you must specify the public subnet in which the NAT gateway should reside.
+		You must also specify an Elastic IP address to associate with the NAT gateway when you create it.
+		After you've created a NAT gateway, you must update the route table associated with one or more of your private subnets to point Internet-bound traffic to the NAT gateway. This enables instances in your private subnets to communicate with the internet.
+
+Internet Gateway - 
+	An internet gateway enables communication over the internet
+
+VPN - 
+	Virtual private network (VPN) connection enables communication with your corporate network.
+	
+Network ACLs : 
+	By design, each subnet must be associated with a network ACL.
+	A network access control list (ACL) is an optional layer of security for your VPC that acts as a firewall for controlling traffic in and out of one or more subnets.
+	
+VPC Flow Logs -
+	VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC.
+	You can create a flow log on your VPC or subnet to capture the traffic that flows to and from the network interfaces in your VPC or subnet.
+	Flow log data can be published to Amazon CloudWatch Logs and Amazon S3.
+	Flow logs can help you with a number of tasks; for example, to troubleshoot why specific traffic is not reaching an instance, which in turn helps you diagnose overly restrictive security group rules. You can also use flow logs as a security tool to monitor the traffic that is reaching your instance.
+	You can create a flow log for a VPC, a subnet, or a network interface. If you create a flow log for a subnet or VPC, each network interface in the VPC or subnet is monitored.
+
+VPC peering -
+	A VPC peering connection is a networking connection between two VPCs that enables you to route traffic between them using private IPv4 addresses or IPv6 addresses. 
+	Instances in either VPC can communicate with each other as if they are within the same network. 
+	You can create a VPC peering connection between your own VPCs, or with a VPC in another AWS account. 
+	The VPCs can be in different regions (also known as an inter-region VPC peering connection).
+	Usage - 
+		A VPC peering connection helps you to facilitate the transfer of data. For example, if you have more than one AWS account, you can peer the VPCs across those accounts to create a file sharing network. 
+		You can also use a VPC peering connection to allow other VPCs to access resources you have in one of your VPCs.
+	
+	
+VPC  - Virtual private cloud
+CIDR - Classless Inter-Domain Routing
+NAT  - Network Address Translation
+
+URLs - 
+	https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenarios.html

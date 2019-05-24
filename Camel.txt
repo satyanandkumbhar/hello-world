@@ -1,0 +1,33 @@
+
+Apache Camel:
+	Apache Camel is an open source framework for message-oriented middleware with a rule-based routing.
+	
+	I have created a route to route the data from Oracle JMS to Elastic Search [ but as pre tried with working model with output to log/console and file ]
+	Camel internally uses Spring-JMS to read the messages from Oracle JMS and you need to configure the 'queueConnectionFactory()' with XADataSource. A Normal Datasource will not work since it is JMS.
+
+Tips:
+	When reading the message and before routing them to target if you want to visualise the contents:
+		Route them to log using following route, this will log complete message on console
+		
+		.to("log:like-to-see-all?level=INFO&showAll=true&multiline=true")
+
+Apache Camel can push/route the messages to elastic search
+
+	The '.to()' routing can be written as follows, in below route 
+			'CZC7157XWL' : is cluster names defined in your config file of elasticsearch
+			'hostAddresses=localhost' this is mandatory parameter to be specified, this is used by Camel internally to create rest client
+			'operation=Index' this is operation type to put the data in elastic search
+			'indexName=sifmessages' specifies index name in which the data will be pushed
+			'indexType=sifmessage'  this is type of index defined [ see below section 'Creating mapping for an Index' for more details ]
+		.to("elasticsearch-rest://CZC7157XWL?hostAddresses=localhost&operation=Index&indexName=sifmessages&indexType=sifmessage");
+		
+Create Index:
+	curl -XPUT 'localhost:9200/sifmessages?pretty'
+
+Creating mapping for an Index:
+	The below command will create mapping for index 'sifmessages' with name 'sifmessage'
+	
+		$ curl -XPUT -H "Content-Type: application/json" localhost:9200/sifmessages/sifmessage/_mapping -d '{  "sifmessage" : {    "properties" : {      "bulkFileSubmissionId": {"type":"text"},     "endRowNumber": {"type":"text"},      "heiCode": {"type":"text"},      "heiUcasCode": {"type":"text"},      "hesAcademicYearId": {"type":"text"},      "username": {"type":"text"}    }  }}'
+
+Once the data is pushed you can visualise using following command
+	GET /sifmessages/_search { "query": { "match_all": {} },"size": 2 }

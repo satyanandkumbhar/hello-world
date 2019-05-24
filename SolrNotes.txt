@@ -1,0 +1,7 @@
+
+Schema APIs:
+	Get Schema deails
+		http://localhost:8983/solr/<<Collection / Schema Name>>/schema?wt=json
+
+	Get the Field Details of a schema
+		http://localhost:8983/solr/<<Collection / Schema Name>>/schema/fields
